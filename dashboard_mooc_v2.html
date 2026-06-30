@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MOOC - Gobernación Cochabamba</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #185FA5;
+            --primary-light: #E6F1FB;
+            --primary-dark: #0C447C;
+            --secondary: #1D9E75;
+            --secondary-light: #E1F5EE;
+            --accent: #D4537E;
+            --accent-light: #FBEAF0;
+            --warning: #BA7517;
+            --warning-light: #FAEEDA;
+            --success: #639922;
+            --success-light: #EAF3DE;
+            --text-primary: #2C2C2A;
+            --text-secondary: #5F5E5A;
+            --text-muted: #888780;
+            --border: #D3D1C7;
+            --surface-light: #F1EFE8;
+            --surface-white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f3ee 0%, #e8e4db 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .mode-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 999;
+            box-shadow: var(--shadow-md);
+        }
+
+        .mode-badge.edicion {
+            background: #FFE5E5;
+            color: #A32D2D;
+            border: 1px solid #E24B4A;
+        }
+
+        .mode-badge.lectura {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .navbar-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navbar-title::before {
+            content: '📚';
+            font-size: 28px;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #5a8b1d;
+        }
+
+        .btn-danger {
+            background: #E24B4A;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c23a39;
+        }
+
+        .btn-info {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        select {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .secretarias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .secretaria-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary);
+        }
+
+        .secretaria-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .secretaria-card.alt1 {
+            border-top-color: #1D9E75;
+        }
+
+        .secretaria-card.alt2 {
+            border-top-color: #D4537E;
+        }
+
+        .secretaria-card.alt3 {
+            border-top-color: #BA7517;
+        }
+
+        .secretaria-card.alt4 {
+            border-top-color: #A32D2D;
+        }
+
+        .secretaria-header {
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(24, 95, 165, 0.05), rgba(24, 95, 165, 0.02));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .secretaria-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .cursos-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 1rem;
+            min-height: 100px;
+        }
+
+        .cursos-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .cursos-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .cursos-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .cursos-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .curso-item {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .curso-item:hover {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+
+        .curso-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .curso-nombre {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .curso-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .curso-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tag-duracion {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .tag-gratuito {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .tag-pago {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .curso-institucion {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .curso-actions {
+            display: flex;
+            gap: 4px;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .curso-item.editable .curso-actions {
+            display: flex;
+        }
+
+        .curso-actions button {
+            padding: 4px 8px;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .add-curso-section {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(24, 95, 165, 0.02), rgba(24, 95, 165, 0.05));
+            border-top: 1px solid var(--border);
+            text-align: center;
+            display: none;
+        }
+
+        .add-curso-section.editable {
+            display: block;
+        }
+
+        .add-curso-section button {
+            width: 100%;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            padding-right: 40px;
+        }
+
+        .modal-header-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 13px;
+            margin-top: 1rem;
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section-title {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-section-content {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .info-item {
+            background: var(--surface-light);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-inscribirse {
+            background: var(--success);
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-inscribirse:hover {
+            background: #5a8b1d;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            background: var(--surface-light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 16px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-form input,
+        .modal-form textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-form input:focus,
+        .modal-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .modal-form textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 13px;
+        }
+
+        .auth-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        .auth-modal h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 20px;
+        }
+
+        .auth-modal p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-modal input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+
+        .auth-modal input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .auth-actions button {
+            flex: 1;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .secretarias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .navbar-title {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-badge" id="modoBadge"></div>
+
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-title">Dashboard MOOC</div>
+            <div class="navbar-actions">
+                <button class="btn btn-secondary" id="shareBtn">📤 Compartir Link</button>
+                <button class="btn btn-secondary" id="exportBtn">📊 Exportar CSV</button>
+                <button class="btn btn-primary" id="authBtn">🔐 Modo Edición</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="header-title">Gestión de Cursos MOOC</h1>
+            <p class="header-subtitle">Gobernación Departamental de Cochabamba - Unidad de Relacionamiento Internacional</p>
+        </div>
+
+        <div class="stats-grid" id="statsContainer"></div>
+
+        <div class="filters">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar por nombre, institución...">
+            </div>
+            <select id="filterSecretaria">
+                <option value="">📋 Todas las secretarías</option>
+            </select>
+            <button class="btn btn-success" id="addSecretariaBtn" style="display: none;">➕ Nueva Secretaría</button>
+        </div>
+
+        <div class="secretarias-grid" id="secretariasContainer"></div>
+    </div>
+
+    <div class="footer">
+        <p>Dashboard MOOC v2.0 | Gobernación Departamental de Cochabamba | Datos almacenados localmente</p>
+    </div>
+
+    <!-- Modal para ver curso -->
+    <div class="modal-overlay" id="cursoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeCursoModal()">×</button>
+                <h2 id="cursoModalNombre"></h2>
+                <div class="modal-header-meta" id="cursoModalMeta"></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">Descripción</div>
+                    <div class="modal-section-content" id="cursoModalDescripcion"></div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Detalles del Curso</div>
+                    <div class="info-grid" id="cursoModalDetalles"></div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Institución</div>
+                    <div class="modal-section-content" id="cursoModalInstitucion"></div>
+                </div>
+
+                <button class="btn-inscribirse" id="btnInscribirse">
+                    🎓 Ir al Curso
+                </button>
+            </div>
+            <div class="modal-footer" id="cursoModalFooter"></div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar curso -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+                <h2 id="editModalTitle">Agregar Curso</h2>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" id="editForm">
+                    <input type="text" id="cursoNombre" placeholder="Nombre del curso" required>
+                    <input type="url" id="cursoLink" placeholder="Link de inscripción (https://...)" required>
+                    <input type="text" id="cursoDuracion" placeholder="Duración (ej: 40 horas)">
+                    <input type="text" id="cursoCosto" placeholder="Costo (ej: Gratuito, $25 USD)">
+                    <input type="text" id="cursoInstitucion" placeholder="Institución">
+                    <textarea id="cursoDescripcion" placeholder="Descripción del curso"></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEditCurso()">✓ Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de autenticación -->
+    <div class="modal-overlay" id="authModal">
+        <div class="auth-modal">
+            <h2>🔐 Acceso a Edición</h2>
+            <p>Ingresa la contraseña para acceder al modo de edición del dashboard.</p>
+            <input type="password" id="passwordInput" placeholder="Contraseña">
+            <div class="auth-actions">
+                <button class="btn btn-secondary" onclick="closeAuthModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="authenticate()">Acceder</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_PASSWORD = "gobcochamba2024";
+
+        const defaultSecretarias = [
+            "SECRETARÍA DEPARTAMENTAL DE PLANIFICACIÓN Y DESARROLLO ESTRATÉGICO",
+            "SECRETARÍA DEPARTAMENTAL DE FINANZAS Y ADMINISTRACIÓN",
+            "SECRETARÍA DEPARTAMENTAL DE DESARROLLO HUMANO, CULTURAS Y TURISMO",
+            "SECRETARÍA DEPARTAMENTAL DE SALUD",
+            "SECRETARÍA DEPARTAMENTAL GENERAL Y GOBERNABILIDAD",
+            "SECRETARÍA DEPARTAMENTAL DE DESARROLLO PRODUCTIVO Y TRANSFORMACIÓN",
+            "SECRETARÍA DEPARTAMENTAL DE MINERÍA E HIDROCARBUROS",
+            "SECRETARÍA DEPARTAMENTAL DE MEDIO AMBIENTE Y RECURSOS HÍDRICOS",
+            "SECRETARÍA DEPARTAMENTAL DE OBRAS PÚBLICAS Y SERVICIOS"
+        ];
+
+        const cursosPDF = [
+            { nombre: "Ciberseguridad de la Infraestructura", link: "https://capacitaciones.caf.com/info/ciberseguridad-de-la-infraestructura-03054214", duracion: "40 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Introduce los fundamentos de ciberseguridad aplicados a infraestructuras críticas.", secretaria: 0 },
+            { nombre: "Econometría I", link: "https://capacitaciones.caf.com/info/econometria-i-02668461", duracion: "120 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Introduce econometría y análisis de datos econométricos básicos.", secretaria: 1 },
+            { nombre: "Econometría II", link: "https://capacitaciones.caf.com/info/econometria-ii-02656082", duracion: "120 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Profundiza en modelos econométricos avanzados para análisis de políticas.", secretaria: 1 },
+            { nombre: "GovTech y el futuro del gobierno", link: "https://capacitaciones.caf.com/info/govtech-y-el-futuro-del-gobierno-02698137", duracion: "30 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Analiza el ecosistema GovTech y la transformación digital en gobiernos.", secretaria: 0 },
+            { nombre: "Formulación y evaluación de proyectos complejos", link: "https://www.coursera.org/learn/formulacion-evaluacion-proyectos", duracion: "6 módulos", costo: "Pago", institucion: "Coursera", certificacion: "Sí", descripcion: "Aprende a formular y evaluar proyectos complejos desde múltiples dimensiones.", secretaria: 0 },
+            { nombre: "Economía del Cambio Climático", link: "https://www.coursera.org/learn/economia-cambio-climatico", duracion: "6 módulos", costo: "Pago", institucion: "Coursera", certificacion: "Sí", descripcion: "Aborda el cambio climático desde una perspectiva económica integradora.", secretaria: 7 },
+            { nombre: "Agroecología: Transición hacia sistemas alimentarios sostenibles", link: "https://www.fao.org/e-learning", duracion: "40 horas", costo: "Gratuito", institucion: "FAO", certificacion: "Sí", descripcion: "Difunde y promueve el conocimiento sobre agroecología y sostenibilidad alimentaria.", secretaria: 6 },
+            { nombre: "Transformación de los sistemas agroalimentarios", link: "https://www.enfasysproject.eu", duracion: "4-6 semanas", costo: "Pago", institucion: "ENFASYS", certificacion: "Sí", descripcion: "Explora la transformación de sistemas agroalimentarios hacia modelos sostenibles.", secretaria: 6 },
+            { nombre: "Liderazgo femenino: potencia tus habilidades", link: "https://cursos.iadb.org/es/temas/desarrollo-social/liderazgo-femenino-potencia-habilidades-impulsa-cambio", duracion: "10 semanas", costo: "Pago", institucion: "IADB", certificacion: "Sí", descripcion: "Fortalece habilidades de liderazgo orientadas hacia equidad de género.", secretaria: 2 },
+            { nombre: "Educar en tiempos de inteligencia artificial", link: "https://learningportal.iiep.unesco.org", duracion: "30 horas", costo: "Gratuito", institucion: "UNESCO", certificacion: "Sí", descripcion: "Prepara a educadores para enfrentar la IA y transformación digital en escuelas.", secretaria: 2 },
+            { nombre: "Introducción a UNCITRAL", link: "https://uncitral.un.org/en/onlinecourses", duracion: "Todo el tiempo", costo: "Gratuito", institucion: "UNCITRAL", certificacion: "Sí", descripcion: "Aprende sobre el rol de UNCITRAL en armonización del derecho comercial internacional.", secretaria: 4 },
+            { nombre: "Marco de Mediación UNCITRAL", link: "https://uncitral.un.org/en/onlinecourses", duracion: "Todo el tiempo", costo: "Gratuito", institucion: "UNCITRAL", certificacion: "Sí", descripcion: "Explora la Convención de Singapur sobre Mediación y marcos internacionales.", secretaria: 4 },
+            { nombre: "Liderazgo en enfermería", link: "https://campus.paho.org", duracion: "120 horas", costo: "Gratuito", institucion: "OPS", certificacion: "Sí", descripcion: "Fortalece gestión del trabajo de profesionales de enfermería en Latinoamérica.", secretaria: 3 },
+            { nombre: "Diagnóstico y manejo clínico del dengue", link: "https://campus.paho.org", duracion: "20 horas", costo: "Gratuito", institucion: "OPS", certificacion: "Sí", descripcion: "Enseña epidemiología, diagnóstico diferencial y tratamiento del dengue.", secretaria: 3 },
+            { nombre: "Gestión Sostenible de Tierras Agrícolas", link: "https://www.ufl.edu", duracion: "20 horas", costo: "Pago", institucion: "Universidad de Florida", certificacion: "Sí", descripcion: "Aborda gestión de calidad del agua y estrategias de nutrientes en agricultura.", secretaria: 7 },
+            { nombre: "Agua en América Latina: Abundancia en escasez", link: "https://cursos.iadb.org/es/temas/economia-y-desarrollo/agua-en-america-latina", duracion: "40 horas", costo: "Gratuito", institucion: "IADB", certificacion: "Sí", descripcion: "Analiza la crisis del agua y modelos de oferta/demanda del recurso hídrico.", secretaria: 7 },
+            { nombre: "Gestión Coordinada de Fronteras durante emergencias", link: "https://cursos.iadb.org/es/temas/desarrollo-instituciones", duracion: "15 horas", costo: "Gratuito", institucion: "IADB", certificacion: "Sí", descripcion: "Desarrolla planes de contingencia para aduanas ante desastres naturales.", secretaria: 4 },
+            { nombre: "Diseño de proyectos de gobierno digital", link: "https://cursos.iadb.org/es/temas/desarrollo-instituciones/diseno-proyectos-gobierno-digital", duracion: "20-30 horas", costo: "$29-50 USD", institucion: "IADB", certificacion: "Sí", descripcion: "Enseña a diseñar proyectos de transformación digital en sector público.", secretaria: 0 },
+            { nombre: "Gestión por Resultados en Gobiernos Subnacionales", link: "https://cursos.iadb.org/es/temas/desarrollo-instituciones", duracion: "40 horas", costo: "$25 USD", institucion: "IADB", certificacion: "Sí", descripcion: "Explica cinco pilares de gestión por resultados para gobiernos locales.", secretaria: 1 },
+            { nombre: "Introducción a la sostenibilidad", link: "https://www.coursera.org/learn/sustainability", duracion: "3 semanas", costo: "Gratuito", institucion: "Universidad de Illinois", certificacion: "Sí", descripcion: "Introduce sostenibilidad y cómo sociedades pueden enfrentar desafíos globales.", secretaria: 7 },
+            { nombre: "Cambio Climático y Biodiversidad", link: "https://capacitaciones.caf.com", duracion: "40 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Analiza impacto del cambio climático y biodiversidad en América Latina.", secretaria: 7 },
+            { nombre: "Carreteras Sostenibles", link: "https://capacitaciones.caf.com", duracion: "30 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Desarrolla habilidades para gestionar proyectos de carreteras sostenibles.", secretaria: 8 },
+            { nombre: "Inclusión financiera en América Latina", link: "https://capacitaciones.caf.com", duracion: "30 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Analiza inclusión financiera y oportunidades en América Latina.", secretaria: 1 },
+            { nombre: "Innovación empresarial: impulsa tu PYME", link: "https://capacitaciones.caf.com", duracion: "24 horas", costo: "Gratuito", institucion: "CAF", certificacion: "Sí", descripcion: "Desarrolla innovación en pequeñas y medianas empresas.", secretaria: 6 }
+        ];
+
+        let appState = JSON.parse(localStorage.getItem('moocDashboard')) || {
+            secretarias: defaultSecretarias.map((s, idx) => ({ nombre: s, id: idx })),
+            cursos: cursosPDF.map(c => ({ ...c, id: Math.random() }))
+        };
+
+        let isEditMode = false;
+        let searchFilter = '';
+        let secretariaFilter = '';
+        let currentEditingCurso = null;
+        let currentEditingSecretaria = null;
+        let draggedCursoId = null;
+
+        function updateModoBadge() {
+            const badge = document.getElementById('modoBadge');
+            const addBtn = document.getElementById('addSecretariaBtn');
+            
+            if (isEditMode) {
+                badge.className = 'mode-badge edicion';
+                badge.textContent = '✏️ MODO EDICIÓN';
+                addBtn.style.display = 'inline-flex';
+            } else {
+                badge.className = 'mode-badge lectura';
+                badge.textContent = '👁️ MODO LECTURA';
+                addBtn.style.display = 'none';
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('moocDashboard', JSON.stringify(appState));
+        }
+
+        function renderStats() {
+            const totalCursos = appState.cursos.length;
+            const gratuitos = appState.cursos.filter(c => c.costo.includes('Gratuito')).length;
+            const pagas = appState.cursos.filter(c => !c.costo.includes('Gratuito')).length;
+
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalCursos}</div>
+                    <div class="stat-label">Cursos disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${gratuitos}</div>
+                    <div class="stat-label">Cursos gratuitos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${pagas}</div>
+                    <div class="stat-label">Cursos de pago</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${appState.secretarias.length}</div>
+                    <div class="stat-label">Secretarías</div>
+                </div>
+            `;
+            document.getElementById('statsContainer').innerHTML = html;
+        }
+
+        function getAltClass(idx) {
+            const classes = ['', 'alt1', 'alt2', 'alt3', 'alt4'];
+            return classes[idx % classes.length];
+        }
+
+        function renderSecretarias() {
+            const container = document.getElementById('secretariasContainer');
+            const filterSelect = document.getElementById('filterSecretaria');
+            filterSelect.innerHTML = '<option value="">📋 Todas las secretarías</option>';
+
+            let html = '';
+            appState.secretarias.forEach((sec, idx) => {
+                if (secretariaFilter && secretariaFilter !== idx.toString()) return;
+
+                const cursosSec = appState.cursos.filter(c => {
+                    const matchSecretaria = !secretariaFilter || c.secretaria === idx;
+                    const matchSearch = !searchFilter ||
+                        c.nombre.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                        (c.institucion && c.institucion.toLowerCase().includes(searchFilter.toLowerCase()));
+                    return matchSecretaria && matchSearch;
+                });
+
+                filterSelect.innerHTML += `<option value="${idx}">${sec.nombre}</option>`;
+
+                const altClass = getAltClass(idx);
+
+                html += `
+                    <div class="secretaria-card ${altClass}" data-secretaria-id="${idx}">
+                        <div class="secretaria-header">
+                            <span class="secretaria-title">${sec.nombre}</span>
+                            ${isEditMode ? `<button class="btn btn-secondary" onclick="editSecretaria(${idx})" style="margin: 0;">✏️</button>` : ''}
+                        </div>
+                        <div class="cursos-container ${isEditMode ? 'editable' : ''}" id="cursos-${idx}">
+                            ${cursosSec.length === 0 ? `
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">📚</div>
+                                    <p>No hay cursos asignados</p>
+                                </div>
+                            ` : cursosSec.map(curso => `
+                                <div class="curso-item ${isEditMode ? 'editable' : ''}" draggable="${isEditMode}" data-curso-id="${curso.id}" onclick="viewCurso('${curso.id}')">
+                                    <div class="curso-nombre">${curso.nombre}</div>
+                                    <div class="curso-info">
+                                        ${curso.duracion ? `<span class="curso-tag tag-duracion">⏱ ${curso.duracion}</span>` : ''}
+                                        ${curso.costo ? `<span class="curso-tag ${curso.costo.includes('Gratuito') ? 'tag-gratuito' : 'tag-pago'}">${curso.costo.includes('Gratuito') ? '✓ Gratuito' : '💰 Pago'}</span>` : ''}
+                                    </div>
+                                    ${curso.institucion ? `<div class="curso-institucion">📍 ${curso.institucion}</div>` : ''}
+                                    <div class="curso-actions">
+                                        <button class="btn btn-secondary" onclick="event.stopPropagation(); editCurso('${curso.id}')">✏️</button>
+                                        <button class="btn btn-danger" onclick="event.stopPropagation(); deleteCurso('${curso.id}')">🗑️</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="add-curso-section ${isEditMode ? 'editable' : ''}">
+                            <button class="btn btn-success" onclick="openAddCursoModal(${idx})" style="width: 100%;">➕ Agregar curso</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            if (isEditMode) {
+                attachDragListeners();
+            }
+        }
+
+        function viewCurso(cursoId) {
+            const curso = appState.cursos.find(c => c.id === parseFloat(cursoId));
+            if (!curso) return;
+
+            document.getElementById('cursoModalNombre').textContent = curso.nombre;
+            document.getElementById('cursoModalMeta').innerHTML = `
+                <span>📍 ${curso.institucion || 'Sin institución'}</span>
+                <span>⏱ ${curso.duracion || 'Duración no especificada'}</span>
+                <span>${curso.costo.includes('Gratuito') ? '✓ Gratuito' : '💰 Pago'}</span>
+            `;
+            document.getElementById('cursoModalDescripcion').textContent = curso.descripcion || 'Descripción no disponible';
+            
+            document.getElementById('cursoModalDetalles').innerHTML = `
+                <div class="info-item">
+                    <div class="info-label">Duración</div>
+                    <div class="info-value">${curso.duracion || 'No especificado'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Costo</div>
+                    <div class="info-value">${curso.costo || 'No especificado'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Institución</div>
+                    <div class="info-value">${curso.institucion || 'No especificado'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Certificación</div>
+                    <div class="info-value">${curso.certificacion || 'No'}</div>
+                </div>
+            `;
+            
+            document.getElementById('cursoModalInstitucion').textContent = curso.institucion || 'Institución no especificada';
+
+            document.getElementById('btnInscribirse').onclick = () => {
+                if (curso.link) {
+                    window.open(curso.link, '_blank');
+                } else {
+                    alert('No hay link de inscripción disponible');
+                }
+            };
+
+            const footer = document.getElementById('cursoModalFooter');
+            if (isEditMode) {
+                footer.innerHTML = `
+                    <button class="btn btn-secondary" onclick="closeCursoModal()">Cerrar</button>
+                    <button class="btn btn-info" onclick="event.stopPropagation(); closeCursoModal(); editCurso('${curso.id}')">✏️ Editar</button>
+                `;
+            } else {
+                footer.innerHTML = `<button class="btn btn-secondary" onclick="closeCursoModal()">Cerrar</button>`;
+            }
+
+            document.getElementById('cursoModal').classList.add('active');
+        }
+
+        function closeCursoModal() {
+            document.getElementById('cursoModal').classList.remove('active');
+        }
+
+        function openAddCursoModal(secretariaIdx) {
+            currentEditingSecretaria = secretariaIdx;
+            currentEditingCurso = null;
+            document.getElementById('editModalTitle').textContent = '➕ Agregar Curso';
+            resetEditForm();
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function editCurso(cursoId) {
+            const curso = appState.cursos.find(c => c.id === parseFloat(cursoId));
+            if (!curso) return;
+
+            currentEditingCurso = curso.id;
+            currentEditingSecretaria = curso.secretaria;
+            document.getElementById('editModalTitle').textContent = '✏️ Editar Curso';
+            document.getElementById('cursoNombre').value = curso.nombre || '';
+            document.getElementById('cursoLink').value = curso.link || '';
+            document.getElementById('cursoDuracion').value = curso.duracion || '';
+            document.getElementById('cursoCosto').value = curso.costo || '';
+            document.getElementById('cursoInstitucion').value = curso.institucion || '';
+            document.getElementById('cursoDescripcion').value = curso.descripcion || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function saveEditCurso() {
+            const nombre = document.getElementById('cursoNombre').value.trim();
+            const link = document.getElementById('cursoLink').value.trim();
+
+            if (!nombre || !link) {
+                alert('El nombre y el link son requeridos');
+                return;
+            }
+
+            if (currentEditingCurso === null) {
+                // Nuevo curso
+                const nuevo = {
+                    id: Math.random(),
+                    nombre: nombre,
+                    link: link,
+                    duracion: document.getElementById('cursoDuracion').value,
+                    costo: document.getElementById('cursoCosto').value,
+                    institucion: document.getElementById('cursoInstitucion').value,
+                    descripcion: document.getElementById('cursoDescripcion').value,
+                    certificacion: 'Sí',
+                    secretaria: currentEditingSecretaria
+                };
+                appState.cursos.push(nuevo);
+            } else {
+                // Editar curso existente
+                const curso = appState.cursos.find(c => c.id === currentEditingCurso);
+                if (curso) {
+                    curso.nombre = nombre;
+                    curso.link = link;
+                    curso.duracion = document.getElementById('cursoDuracion').value;
+                    curso.costo = document.getElementById('cursoCosto').value;
+                    curso.institucion = document.getElementById('cursoInstitucion').value;
+                    curso.descripcion = document.getElementById('cursoDescripcion').value;
+                }
+            }
+
+            saveState();
+            closeEditModal();
+            renderSecretarias();
+            renderStats();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            resetEditForm();
+        }
+
+        function resetEditForm() {
+            document.getElementById('editForm').reset();
+            currentEditingCurso = null;
+            currentEditingSecretaria = null;
+        }
+
+        function deleteCurso(cursoId) {
+            if (confirm('¿Eliminar este curso?')) {
+                appState.cursos = appState.cursos.filter(c => c.id !== parseFloat(cursoId));
+                saveState();
+                renderSecretarias();
+                renderStats();
+            }
+        }
+
+        function editSecretaria(idx) {
+            const nombre = prompt('Nombre de la secretaría:', appState.secretarias[idx].nombre);
+            if (nombre && nombre.trim()) {
+                appState.secretarias[idx].nombre = nombre.trim();
+                saveState();
+                renderSecretarias();
+            }
+        }
+
+        function attachDragListeners() {
+            document.querySelectorAll('.curso-item').forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    draggedCursoId = item.dataset.cursoId;
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                });
+            });
+
+            document.querySelectorAll('.cursos-container').forEach(container => {
+                container.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                container.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const cursoId = parseFloat(draggedCursoId);
+                    const newSecretaria = parseInt(container.id.split('-')[1]);
+                    const curso = appState.cursos.find(c => c.id === cursoId);
+                    if (curso && curso.secretaria !== newSecretaria) {
+                        curso.secretaria = newSecretaria;
+                        saveState();
+                        renderSecretarias();
+                    }
+                });
+            });
+        }
+
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === DEFAULT_PASSWORD) {
+                isEditMode = true;
+                closeAuthModal();
+                updateModoBadge();
+                renderSecretarias();
+                alert('✓ Modo edición activado');
+            } else {
+                alert('❌ Contraseña incorrecta');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function logout() {
+            isEditMode = false;
+            updateModoBadge();
+            renderSecretarias();
+            alert('Sesión cerrada. Regresando a modo lectura.');
+        }
+
+        document.getElementById('authBtn').addEventListener('click', () => {
+            if (isEditMode) {
+                logout();
+            } else {
+                document.getElementById('authModal').classList.add('active');
+                document.getElementById('passwordInput').focus();
+            }
+        });
+
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+            searchFilter = e.target.value;
+            renderSecretarias();
+        });
+
+        document.getElementById('filterSecretaria').addEventListener('change', e => {
+            secretariaFilter = e.target.value;
+            renderSecretarias();
+        });
+
+        document.getElementById('addSecretariaBtn').addEventListener('click', () => {
+            const nombre = prompt('Nombre de la nueva secretaría:');
+            if (nombre && nombre.trim()) {
+                appState.secretarias.push({ nombre: nombre.trim(), id: appState.secretarias.length });
+                saveState();
+                renderSecretarias();
+                renderStats();
+            }
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const data = appState.cursos.map(c => ({
+                'Secretaría': appState.secretarias[c.secretaria]?.nombre || 'Sin asignar',
+                'Curso': c.nombre,
+                'Link': c.link || '',
+                'Duración': c.duracion || '',
+                'Costo': c.costo || '',
+                'Institución': c.institucion || '',
+                'Certificación': c.certificacion || 'No',
+                'Descripción': c.descripcion || ''
+            }));
+
+            const csv = [
+                Object.keys(data[0]).join(','),
+                ...data.map(row => Object.values(row).map(v => `"${v}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'cursos_mooc_gobernacion.csv');
+            link.click();
+        });
+
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            const currentUrl = window.location.href;
+            const urlWithMode = currentUrl + (currentUrl.includes('?') ? '&' : '?') + 'mode=lectura';
+            navigator.clipboard.writeText(currentUrl).then(() => {
+                alert('✓ Link copiado al portapapeles\n\n' + currentUrl + '\n\nEste link abre el dashboard en modo lectura (sin edición).');
+            }).catch(() => {
+                prompt('Copia este link para compartir:', currentUrl);
+            });
+        });
+
+        // Cerrar modales al hacer clic fuera
+        document.getElementById('cursoModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('cursoModal')) closeCursoModal();
+        });
+
+        document.getElementById('editModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('editModal')) closeEditModal();
+        });
+
+        document.getElementById('authModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('authModal')) closeAuthModal();
+        });
+
+        // Inicializar
+        updateModoBadge();
+        renderStats();
+        renderSecretarias();
+    </script>
+</body>
+</html>
